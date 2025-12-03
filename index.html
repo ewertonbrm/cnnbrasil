@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rolling Stone Brasil</title> <link rel="manifest" href="/rollingstone/manifest.json">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#FFFFFF">
+
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #FFFFFF; /* Garante que o fundo é branco */
+            overflow: hidden; /* Evita barras de rolagem, se o gif for muito grande */
+        }
+        .loading-gif {
+            max-width: 100%; /* Garante que o gif não exceda a largura da tela */
+            max-height: 100vh; /* Garante que o gif não exceda a altura da tela */
+            display: block; /* Remove espaços extras abaixo da imagem */
+        }
+    </style>
+</head>
+<body>
+
+    <img src="/rollingstone/icons/loading.gif" class="loading-gif">
+
+    <script>
+        const targetUrl = "https://rollingstone.com.br";
+
+        function isPwaInstalled() {
+            return window.matchMedia('(display-mode: standalone)').matches ||
+                   window.matchMedia('(display-mode: fullscreen)').matches ||
+                   window.matchMedia('(display-mode: minimal-ui)').matches;
+        }
+
+        function loadPWA() {
+            if (isPwaInstalled()) {
+                window.location.replace(targetUrl);
+            } else {
+                setTimeout(() => {
+                    window.location.replace(targetUrl);
+                }, 5000); // 5 segundos
+            }
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/rollingstone/service-worker.js', { scope: '/rollingstone/' })
+                    .then(registration => {
+                        console.log('Service Worker registrado e pronto para instalação do PWA.');
+                        loadPWA();
+                    })
+                    .catch(error => {
+                        console.error('Falha no registro do Service Worker. PWA não instalável.', error);
+                        loadPWA();
+                    });
+            });
+        } else {
+            console.warn('Navegador não suporta Service Worker. PWA não instalável.');
+            loadPWA();
+        }
+    </script>
+</body>
+</html>
