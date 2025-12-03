@@ -1,11 +1,11 @@
-const CACHE_NAME = 'rollingstone-pwa-cache-v1';
+const CACHE_NAME = 'cnnbrasil-pwa-cache-v1';
 // CAMINHOS AJUSTADOS
 const urlsToCache = [
-    '/rollingstone/',
-    '/rollingstone/index.html',
-    '/rollingstone/manifest.json',
-    '/rollingstone/icons/icon-192x192.png',
-    '/rollingstone/icons/icon-512x512.png'
+    '/cnnbrasil/',
+    '/cnnbrasil/index.html',
+    '/cnnbrasil/manifest.json',
+    '/cnnbrasil/icons/icon-192x192.png',
+    '/cnnbrasil/icons/icon-512x512.png'
     // Adicione o caminho do seu GIF aqui se estiver local
     // '/backloggd/caminho/do/seu/gif.gif' 
 ];
