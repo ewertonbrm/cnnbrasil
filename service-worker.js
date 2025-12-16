@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cnnbrasil-pwa-cache-v1';
+const CACHE_NAME = 'cnnbrasil-pwa-cache-v4';
 // CAMINHOS AJUSTADOS
 const urlsToCache = [
     '/cnnbrasil/',
@@ -7,7 +7,7 @@ const urlsToCache = [
     '/cnnbrasil/icons/icon-192x192.png',
     '/cnnbrasil/icons/icon-512x512.png'
     // Adicione o caminho do seu GIF aqui se estiver local
-    // '/backloggd/caminho/do/seu/gif.gif' 
+    // '/cnnbrasil/caminho/do/seu/gif.gif' 
 ];
 
 self.addEventListener('install', event => {
@@ -21,7 +21,7 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Ignora requisições para o site externo (https://backloggd.com)
+  // Ignora requisições para o site externo (https://cnnbrasil.com)
   if (!event.request.url.includes(self.location.origin)) {
       return;
   }

@@ -1,7 +1,7 @@
 {
     "name": "CNN Brasil",
     "short_name": "CNN Brasil",
-    "description": "Acesso rápido à CNN Brasil.",
+    "description": "Acesso rápido ao CNN Brasil.",
     "start_url": "/cnnbrasil/index.html",
     "display": "standalone",
     "background_color": "#FFFFFF",
