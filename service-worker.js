@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cnnbrasil-pwa-cache-v3';
+const CACHE_NAME = 'cnnbrasil-pwa-cache-v1';
 // CAMINHOS AJUSTADOS
 const urlsToCache = [
     '/cnnbrasil/',
