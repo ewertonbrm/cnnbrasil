@@ -1,11 +1,12 @@
-const CACHE_NAME = 'cnnbrasil-pwa-cache-v5';
+const CACHE_NAME = 'cnnbrasil-pwa-cache-v7';
 // CAMINHOS AJUSTADOS
 const urlsToCache = [
     '/cnnbrasil/',
     '/cnnbrasil/index.html',
     '/cnnbrasil/manifest.json',
     '/cnnbrasil/icons/icon-192x192.png',
-    '/cnnbrasil/icons/icon-512x512.png'
+    '/cnnbrasil/icons/icon-512x512.png',
+    '/cnnbrasil/icons/loading.gif'
     // Adicione o caminho do seu GIF aqui se estiver local
     // '/cnnbrasil/caminho/do/seu/gif.gif' 
 ];
