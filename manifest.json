@@ -1,8 +1,8 @@
 {
-    "id": "/cnnbrasil/",
+    "id": "/cnnbrasil/index.html",
     "name": "CNN Brasil",
     "short_name": "CNN Brasil",
-    "description": "Acesso rápido ao CNN Brasil.",
+    "description": "Acesso rápido à CNN Brasil.",
     "start_url": "/cnnbrasil/index.html",
     "scope": "/cnnbrasil/",
     "display": "standalone",
