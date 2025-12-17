@@ -1,5 +1,4 @@
-const CACHE_NAME = 'cnnbrasil-pwa-cache-v7';
-// CAMINHOS AJUSTADOS
+const CACHE_NAME = 'cnnbrasil-pwa-cache-v8';
 const urlsToCache = [
     '/cnnbrasil/',
     '/cnnbrasil/index.html',
@@ -7,48 +6,31 @@ const urlsToCache = [
     '/cnnbrasil/icons/icon-192x192.png',
     '/cnnbrasil/icons/icon-512x512.png',
     '/cnnbrasil/icons/loading.gif'
-    // Adicione o caminho do seu GIF aqui se estiver local
-    // '/cnnbrasil/caminho/do/seu/gif.gif' 
 ];
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Service Worker: Arquivos em cache durante a instalação');
-        return cache.addAll(urlsToCache);
-      })
+    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
   );
-});
-
-self.addEventListener('fetch', event => {
-  // Ignora requisições para o site externo (https://cnnbrasil.com)
-  if (!event.request.url.includes(self.location.origin)) {
-      return;
-  }
-  
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        if (response) {
-          return response;
-        }
-        return fetch(event.request);
-      })
-  );
+  self.skipWaiting(); // Força a ativação imediata
 });
 
 self.addEventListener('activate', event => {
-  const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
+    caches.keys().then(keys => Promise.all(
+      keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+    ))
+  );
+  return self.clients.claim(); // Assume o controle da página na hora
+});
+
+self.addEventListener('fetch', event => {
+  if (!event.request.url.startsWith(self.location.origin)) return;
+
+  event.respondWith(
+    caches.match(event.request).then(response => {
+      // Prioriza o cache para o App Shell (index, gif, manifest)
+      return response || fetch(event.request);
     })
   );
 });
