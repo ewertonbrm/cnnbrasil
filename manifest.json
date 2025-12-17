@@ -1,8 +1,10 @@
 {
+    "id": "/cnnbrasil/",
     "name": "CNN Brasil",
     "short_name": "CNN Brasil",
     "description": "Acesso rápido ao CNN Brasil.",
     "start_url": "/cnnbrasil/index.html",
+    "scope": "/cnnbrasil/",
     "display": "standalone",
     "background_color": "#FFFFFF",
     "theme_color": "#FFFFFF",
@@ -10,12 +12,14 @@
         {
             "src": "/cnnbrasil/icons/icon-192x192.png",
             "sizes": "192x192",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any"
         },
         {
             "src": "/cnnbrasil/icons/icon-512x512.png",
             "sizes": "512x512",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any"
         }
     ]
 }
