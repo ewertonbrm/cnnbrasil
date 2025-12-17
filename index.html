@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CNN Brasil</title> <link rel="manifest" href="/cnnbrasil/manifest.json">
+    <title>CNN Brasil</title>
+    <link rel="manifest" href="/cnnbrasil/manifest.json">
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -16,19 +17,19 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            background-color: #FFFFFF; /* Garante que o fundo é branco */
-            overflow: hidden; /* Evita barras de rolagem, se o gif for muito grande */
+            background-color: #FFFFFF;
+            overflow: hidden;
         }
         .loading-gif {
-            max-width: 100%; /* Garante que o gif não exceda a largura da tela */
-            max-height: 100vh; /* Garante que o gif não exceda a altura da tela */
-            display: block; /* Remove espaços extras abaixo da imagem */
+            max-width: 100%;
+            max-height: 100vh;
+            display: block;
         }
     </style>
 </head>
 <body>
 
-    <img src="/cnnbrasil/icons/loading.gif" class="loading-gif">
+    <img src="/cnnbrasil/icons/loading.gif" class="loading-gif" alt="Carregando...">
 
     <script>
         const targetUrl = "https://cnnbrasil.com.br";
@@ -39,17 +40,16 @@
                    window.matchMedia('(display-mode: minimal-ui)').matches;
         }
 
-        function loadPWA() {
-            // Se já estiver instalado (Standalone), redireciona na hora
+        function startTimerAndRedirect() {
             if (isPwaInstalled()) {
+                // Se já for App, redireciona imediatamente
                 window.location.replace(targetUrl);
             } else {
-                // Se NÃO está instalado, aumentamos o tempo para 8 segundos.
-                // Isso dá tempo ao Chrome para processar o Manifesto e o SW 
-                // e mostrar o botão "Instalar" na barra de endereços.
+                // Se não for App, espera os 8 segundos para permitir instalação
+                console.log("Aguardando 8 segundos para estabilidade do PWA...");
                 setTimeout(() => {
                     window.location.replace(targetUrl);
-                }, 120000); 
+                }, 8000);
             }
         }
 
@@ -57,17 +57,20 @@
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/cnnbrasil/service-worker.js', { scope: '/cnnbrasil/' })
                     .then(registration => {
-                        console.log('Service Worker registrado e pronto para instalação do PWA.');
-                        loadPWA();
+                        console.log('Service Worker registrado.');
+                        // Aguarda o SW estar ativo e controlando a página
+                        return navigator.serviceWorker.ready;
+                    })
+                    .then(() => {
+                        startTimerAndRedirect();
                     })
                     .catch(error => {
-                        console.error('Falha no registro do Service Worker. PWA não instalável.', error);
-                        loadPWA();
+                        console.error('Erro no registro do SW:', error);
+                        startTimerAndRedirect();
                     });
             });
         } else {
-            console.warn('Navegador não suporta Service Worker. PWA não instalável.');
-            loadPWA();
+            startTimerAndRedirect();
         }
     </script>
 </body>
