@@ -40,12 +40,16 @@
         }
 
         function loadPWA() {
+            // Se já estiver instalado (Standalone), redireciona na hora
             if (isPwaInstalled()) {
                 window.location.replace(targetUrl);
             } else {
+                // Se NÃO está instalado, aumentamos o tempo para 8 segundos.
+                // Isso dá tempo ao Chrome para processar o Manifesto e o SW 
+                // e mostrar o botão "Instalar" na barra de endereços.
                 setTimeout(() => {
                     window.location.replace(targetUrl);
-                }, 5000); // 5 segundos
+                }, 8000); 
             }
         }
 
