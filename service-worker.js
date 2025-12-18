@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cnnbrasil-teste-v11';
+const CACHE_NAME = 'cnnbrasil-teste-v12';
 const ASSETS = [
   'index.html',
   'manifest.json',
