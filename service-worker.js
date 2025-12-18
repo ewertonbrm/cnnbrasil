@@ -1,57 +1,34 @@
-const CACHE_NAME = 'cnnbrasil-pwa-v10';
-const urlsToCache = [
-    '/cnnbrasil/',
-    '/cnnbrasil/index.html',
-    '/cnnbrasil/manifest.json',
-    '/cnnbrasil/icons/icon-192x192.png',
-    '/cnnbrasil/icons/icon-512x512.png',
-    '/cnnbrasil/icons/loading.gif'
+const CACHE_NAME = 'cnnbrasil-teste-v11';
+const ASSETS = [
+  'index.html',
+  'manifest.json',
+  'icons/loading.gif',
+  'icons/icon-192x192.png',
+  'icons/icon-512x512.png'
 ];
 
-// Instalação: Salva o App Shell no Cache
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('Cache aberto, salvando arquivos...');
-      return cache.addAll(urlsToCache);
+      return cache.addAll(ASSETS);
     })
   );
-  self.skipWaiting(); 
+  self.skipWaiting();
 });
 
-// Ativação: Limpa caches antigos e assume controle
 self.addEventListener('activate', event => {
-  const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (!cacheWhitelist.includes(cacheName)) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+    caches.keys().then(keys => Promise.all(
+      keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+    ))
   );
-  return self.clients.claim();
+  self.clients.claim();
 });
 
-// Fetch: Responde do cache para garantir funcionamento offline (exigência PWA)
 self.addEventListener('fetch', event => {
-  if (!event.request.url.startsWith(self.location.origin)) {
-      return;
-  }
-
   event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Retorna o cache se houver, ou busca na rede
-        return response || fetch(event.request);
-      }).catch(() => {
-        // Se estiver offline e for navegação, serve o index.html
-        if (event.request.mode === 'navigate') {
-          return caches.match('/cnnbrasil/index.html');
-        }
-      })
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request);
+    })
   );
 });
