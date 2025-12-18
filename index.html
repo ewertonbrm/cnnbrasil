@@ -4,21 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CNN Brasil</title>
-    <link rel="manifest" href="/cnnbrasil/manifest.json">
-    
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#FFFFFF">
-
     <style>
         body {
+            margin: 0;
+            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            margin: 0;
             background-color: #FFFFFF;
             overflow: hidden;
+        }
+        #loading-container {
+            display: none; /* Oculto até o SW estar pronto */
         }
         .loading-gif {
             max-width: 100%;
@@ -29,48 +29,41 @@
 </head>
 <body>
 
-    <img src="/cnnbrasil/icons/loading.gif" class="loading-gif" alt="Carregando...">
+    <div id="loading-container">
+        <img src="icons/loading.gif" class="loading-gif" alt="Carregando...">
+    </div>
 
     <script>
-        const targetUrl = "https://cnnbrasil.com.br";
+        const targetUrl = "https://www.cnnbrasil.com.br";
 
-        function isPwaInstalled() {
-            return window.matchMedia('(display-mode: standalone)').matches ||
-                   window.matchMedia('(display-mode: fullscreen)').matches ||
-                   window.matchMedia('(display-mode: minimal-ui)').matches;
-        }
-
-        function startTimerAndRedirect() {
-            if (isPwaInstalled()) {
-                // Se já for App, redireciona imediatamente
+        function startProcess() {
+            // Mostra o GIF centralizado
+            document.getElementById('loading-container').style.display = 'block';
+            
+            // Inicia contagem de 10 segundos para redirecionamento
+            setTimeout(() => {
                 window.location.replace(targetUrl);
-            } else {
-                // Se não for App, espera os 8 segundos para permitir instalação
-                console.log("Aguardando 8 segundos para estabilidade do PWA...");
-                setTimeout(() => {
-                    window.location.replace(targetUrl);
-                }, 8000);
-            }
+            }, 10000);
         }
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/cnnbrasil/service-worker.js', { scope: '/cnnbrasil/' })
-                    .then(registration => {
-                        console.log('Service Worker registrado.');
-                        // Aguarda o SW estar ativo e controlando a página
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => {
+                        // Aguarda o Service Worker estar pronto (critério de instalação)
                         return navigator.serviceWorker.ready;
                     })
                     .then(() => {
-                        startTimerAndRedirect();
+                        // Inicia o GIF e o Timer
+                        startProcess();
                     })
-                    .catch(error => {
-                        console.error('Erro no registro do SW:', error);
-                        startTimerAndRedirect();
+                    .catch(err => {
+                        console.error('Erro no SW:', err);
+                        startProcess(); // Tenta carregar mesmo com erro
                     });
             });
         } else {
-            startTimerAndRedirect();
+            startProcess();
         }
     </script>
 </body>
