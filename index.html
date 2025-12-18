@@ -18,7 +18,7 @@
             overflow: hidden;
         }
         #loading-container {
-            display: none; /* Oculto até o SW estar pronto */
+            display: none;
         }
         .loading-gif {
             max-width: 100%;
@@ -36,30 +36,38 @@
     <script>
         const targetUrl = "https://www.cnnbrasil.com.br";
 
+        // Função para verificar se o PWA está rodando como app instalado
+        function isPwaInstalled() {
+            return window.matchMedia('(display-mode: standalone)').matches || 
+                   window.matchMedia('(display-mode: fullscreen)').matches ||
+                   window.navigator.standalone === true; // Para iOS
+        }
+
         function startProcess() {
-            // Mostra o GIF centralizado
-            document.getElementById('loading-container').style.display = 'block';
-            
-            // Inicia contagem de 10 segundos para redirecionamento
-            setTimeout(() => {
+            if (isPwaInstalled()) {
+                // REGRA: Se estiver instalado, redireciona AGORA
                 window.location.replace(targetUrl);
-            }, 10000);
+            } else {
+                // REGRA: Se for pelo navegador, mostra o GIF e espera 10s para permitir instalação
+                document.getElementById('loading-container').style.display = 'block';
+                setTimeout(() => {
+                    window.location.replace(targetUrl);
+                }, 10000);
+            }
         }
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('service-worker.js')
                     .then(reg => {
-                        // Aguarda o Service Worker estar pronto (critério de instalação)
                         return navigator.serviceWorker.ready;
                     })
                     .then(() => {
-                        // Inicia o GIF e o Timer
                         startProcess();
                     })
                     .catch(err => {
                         console.error('Erro no SW:', err);
-                        startProcess(); // Tenta carregar mesmo com erro
+                        startProcess();
                     });
             });
         } else {
