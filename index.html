@@ -1,77 +1,90 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CNN Brasil</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#FFFFFF">
+    <title>PWA Redirector</title>
     <style>
         body {
-            margin: 0;
-            padding: 0;
+            background-color: black;
+            color: white;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            background-color: #FFFFFF;
-            overflow: hidden;
+            height: 100vh;
+            margin: 0;
+            font-family: sans-serif;
+            text-align: center;
         }
-        #loading-container {
+        #status { 
+            display: none; 
+            margin-bottom: 20px;
+        }
+        #installBtn {
             display: none;
-        }
-        .loading-gif {
-            max-width: 100%;
-            max-height: 100vh;
-            display: block;
+            padding: 12px 24px;
+            background-color: #ffffff;
+            color: #000000;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-    <div id="loading-container">
-        <img src="icons/loading.gif" class="loading-gif" alt="Carregando...">
-    </div>
+    <div id="status">SW concluído, PWA disponível</div>
+    <button id="installBtn">Instalar App</button>
 
     <script>
-        const targetUrl = "https://www.cnnbrasil.com.br";
+        const statusDiv = document.getElementById('status');
+        const installBtn = document.getElementById('installBtn');
+        let deferredPrompt;
 
-        // Função para verificar se o PWA está rodando como app instalado
-        function isPwaInstalled() {
-            return window.matchMedia('(display-mode: standalone)').matches || 
-                   window.matchMedia('(display-mode: fullscreen)').matches ||
-                   window.navigator.standalone === true; // Para iOS
-        }
+        // 1. Verifica se já está instalado
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
+                           || window.navigator.standalone;
 
-        function startProcess() {
-            if (isPwaInstalled()) {
-                // REGRA: Se estiver instalado, redireciona AGORA
-                window.location.replace(targetUrl);
-            } else {
-                // REGRA: Se for pelo navegador, mostra o GIF e espera 10s para permitir instalação
-                document.getElementById('loading-container').style.display = 'block';
-                setTimeout(() => {
-                    window.location.replace(targetUrl);
-                }, 10000);
-            }
-        }
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('service-worker.js')
-                    .then(reg => {
-                        return navigator.serviceWorker.ready;
-                    })
-                    .then(() => {
-                        startProcess();
-                    })
-                    .catch(err => {
-                        console.error('Erro no SW:', err);
-                        startProcess();
-                    });
-            });
+        if (isStandalone) {
+            window.location.href = "https://www.google.com";
         } else {
-            startProcess();
+            // 2. Registro do Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js')
+                .then(reg => {
+                    // Mostra status se o SW já estiver ativo ou quando ativar
+                    if (reg.active) statusDiv.style.display = 'block';
+                    
+                    reg.onupdatefound = () => {
+                        const worker = reg.installing;
+                        worker.onstatechange = () => {
+                            if (worker.state === 'activated') statusDiv.style.display = 'block';
+                        };
+                    };
+                });
+            }
+
+            // 3. Captura o evento de instalação do Chrome
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                // Mostra o botão de instalação
+                installBtn.style.display = 'block';
+            });
+
+            installBtn.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    if (outcome === 'accepted') {
+                        installBtn.style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                }
+            });
         }
     </script>
 </body>
