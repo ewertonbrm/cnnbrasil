@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000">
     <title>PWA Redirector</title>
     <style>
         body {
@@ -21,69 +22,92 @@
         #status { 
             display: none; 
             margin-bottom: 20px;
+            font-size: 1.2rem;
         }
         #installBtn {
-            display: none;
-            padding: 12px 24px;
-            background-color: #ffffff;
-            color: #000000;
+            display: none; /* Só aparece se o PWA for instalável */
+            padding: 15px 30px;
+            background-color: white;
+            color: black;
             border: none;
-            border-radius: 8px;
+            border-radius: 25px;
             font-weight: bold;
+            font-size: 1rem;
             cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255,255,255,0.2);
         }
     </style>
 </head>
 <body>
 
     <div id="status">SW concluído, PWA disponível</div>
-    <button id="installBtn">Instalar App</button>
+    <button id="installBtn">Instalar PWA</button>
 
     <script>
         const statusDiv = document.getElementById('status');
         const installBtn = document.getElementById('installBtn');
         let deferredPrompt;
 
-        // 1. Verifica se já está instalado
+        // 1. Verificação de modo Instalado (Standalone)
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
-                           || window.navigator.standalone;
+                           || window.navigator.standalone 
+                           || document.referrer.includes('android-app://');
 
         if (isStandalone) {
-            window.location.href = "https://www.google.com";
+            // Se já for PWA instalado, vai direto para o Google
+            window.location.replace("https://www.google.com");
         } else {
-            // 2. Registro do Service Worker
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('sw.js')
-                .then(reg => {
-                    // Mostra status se o SW já estiver ativo ou quando ativar
-                    if (reg.active) statusDiv.style.display = 'block';
-                    
-                    reg.onupdatefound = () => {
-                        const worker = reg.installing;
-                        worker.onstatechange = () => {
-                            if (worker.state === 'activated') statusDiv.style.display = 'block';
-                        };
-                    };
-                });
-            }
+            // 2. Registro do Service Worker imediatamente no carregamento
+            window.addEventListener('load', () => {
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.register('sw.js')
+                    .then(reg => {
+                        console.log("SW registrado com sucesso");
+                        
+                        // Verifica se já está ativo para mostrar a mensagem
+                        if (reg.active) {
+                            statusDiv.style.display = 'block';
+                        }
 
-            // 3. Captura o evento de instalação do Chrome
+                        // Escuta mudanças de estado do SW
+                        reg.onupdatefound = () => {
+                            const worker = reg.installing;
+                            worker.onstatechange = () => {
+                                if (worker.state === 'activated') {
+                                    statusDiv.style.display = 'block';
+                                }
+                            };
+                        };
+                    })
+                    .catch(err => console.log("Erro ao registrar SW:", err));
+                }
+            });
+
+            // 3. Lógica do botão de instalação (evento beforeinstallprompt)
             window.addEventListener('beforeinstallprompt', (e) => {
+                // Impede que o Chrome mostre o banner automático padrão
                 e.preventDefault();
+                // Guarda o evento para disparar depois
                 deferredPrompt = e;
-                // Mostra o botão de instalação
+                // Mostra o seu botão personalizado
                 installBtn.style.display = 'block';
+                console.log("PWA pronto para ser instalado.");
             });
 
             installBtn.addEventListener('click', async () => {
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    if (outcome === 'accepted') {
-                        installBtn.style.display = 'none';
-                    }
-                    deferredPrompt = null;
+                if (!deferredPrompt) return;
+                
+                // Mostra o prompt de instalação nativo
+                deferredPrompt.prompt();
+                
+                // Espera pela escolha do usuário
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`Usuário escolheu: ${outcome}`);
+                
+                if (outcome === 'accepted') {
+                    installBtn.style.display = 'none';
                 }
+                deferredPrompt = null;
             });
         }
     </script>
