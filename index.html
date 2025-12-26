@@ -1,78 +1,16 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CNN Brasil</title>
+    <title>PWA Teste</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#FFFFFF">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: #FFFFFF;
-            overflow: hidden;
-        }
-        #loading-container {
-            display: none;
-        }
-        .loading-gif {
-            max-width: 100%;
-            max-height: 100vh;
-            display: block;
-        }
-    </style>
-</head>
-<body>
-
-    <div id="loading-container">
-        <img src="icons/loading.gif" class="loading-gif" alt="Carregando...">
-    </div>
-
     <script>
-        const targetUrl = "https://www.cnnbrasil.com.br";
-
-        // Função para verificar se o PWA está rodando como app instalado
-        function isPwaInstalled() {
-            return window.matchMedia('(display-mode: standalone)').matches || 
-                   window.matchMedia('(display-mode: fullscreen)').matches ||
-                   window.navigator.standalone === true; // Para iOS
-        }
-
-        function startProcess() {
-            if (isPwaInstalled()) {
-                // REGRA: Se estiver instalado, redireciona AGORA
-                window.location.replace(targetUrl);
-            } else {
-                // REGRA: Se for pelo navegador, mostra o GIF e espera 10s para permitir instalação
-                document.getElementById('loading-container').style.display = 'block';
-                setTimeout(() => {
-                    window.location.replace(targetUrl);
-                }, 10000);
-            }
-        }
-
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('service-worker.js')
-                    .then(reg => {
-                        return navigator.serviceWorker.ready;
-                    })
-                    .then(() => {
-                        startProcess();
-                    })
-                    .catch(err => {
-                        console.error('Erro no SW:', err);
-                        startProcess();
-                    });
-            });
-        } else {
-            startProcess();
+            navigator.serviceWorker.register('service-worker.js');
         }
     </script>
+</head>
+<body>
+    <h1>Instale este App</h1>
+    <p>Aguarde 10 segundos e verifique o menu do Chrome.</p>
 </body>
 </html>
