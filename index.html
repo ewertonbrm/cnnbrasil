@@ -9,42 +9,86 @@
     <style>
         body {
             margin: 0; padding: 0;
-            display: flex; justify-content: center; align-items: center;
-            min-height: 100vh; background-color: #FFFFFF;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            min-height: 100vh; background-color: #FFFFFF; font-family: sans-serif;
         }
-        #install-message {
-            text-align: center;
-            font-family: sans-serif;
-            display: none; /* Só aparece se não estiver instalado */
+        #loading-container { text-align: center; }
+        .loading-gif { max-width: 100%; display: block; margin: 0 auto; }
+        
+        /* Botão de Instalação Estilizado */
+        #install-button {
+            display: none; /* Escondido por padrão */
+            margin-top: 20px;
+            padding: 12px 24px;
+            background-color: #00D49F;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        .loading-gif { max-width: 100%; display: block; }
     </style>
 </head>
 <body>
 
     <div id="loading-container">
         <img src="icons/loading.gif" class="loading-gif" alt="Carregando...">
-        <div id="install-message">
-            <p>Instale o App para acessar o conteúdo completo.</p>
-        </div>
+        <button id="install-button">INSTALAR APP AGORA</button>
+        <p id="status-text">Verificando sistema...</p>
     </div>
 
     <script>
         const targetUrl = "https://androidauthority.com";
+        const installBtn = document.getElementById('install-button');
+        const statusText = document.getElementById('status-text');
+        let deferredPrompt;
 
-        // Checa se o App está rodando como PWA instalado
+        // 1. Checar se já está instalado
         const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
         if (isPWA) {
-            // Se estiver instalado, redireciona em 2 segundos (apenas para o usuário ver o splash)
+            statusText.innerText = "Abrindo Android Authority...";
             setTimeout(() => {
                 window.location.replace(targetUrl);
             }, 2000);
         } else {
-            // Se NÃO estiver instalado, permanece na página para permitir a instalação
-            document.getElementById('install-message').style.display = 'block';
-            console.log("Aguardando instalação pelo usuário...");
+            statusText.innerText = "Para continuar, instale o Web App abaixo:";
         }
+
+        // 2. Capturar o evento de instalação do Chrome
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Previne o Chrome de mostrar o banner automático muito cedo
+            e.preventDefault();
+            // Guarda o evento para ser usado depois
+            deferredPrompt = e;
+            // Mostra o botão de instalação para o usuário
+            installBtn.style.display = 'block';
+        });
+
+        // 3. Lógica do clique no botão
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                // Mostra o prompt de instalação
+                deferredPrompt.prompt();
+                // Espera a resposta do usuário
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('Usuário aceitou a instalação');
+                    installBtn.style.display = 'none';
+                }
+                deferredPrompt = null;
+            }
+        });
+
+        // 4. Se o app for instalado com sucesso
+        window.addEventListener('appinstalled', () => {
+            statusText.innerText = "Instalado com sucesso! Abrindo...";
+            setTimeout(() => {
+                window.location.replace(targetUrl);
+            }, 1000);
+        });
 
         // Registro do Service Worker
         if ('serviceWorker' in navigator) {
