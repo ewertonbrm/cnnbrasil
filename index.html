@@ -8,62 +8,49 @@
     <meta name="theme-color" content="#FFFFFF">
     <style>
         body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: #FFFFFF;
-            overflow: hidden;
+            margin: 0; padding: 0;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; background-color: #FFFFFF;
         }
-        #loading-container {
-            display: none; /* Oculto até o SW estar pronto */
+        #install-message {
+            text-align: center;
+            font-family: sans-serif;
+            display: none; /* Só aparece se não estiver instalado */
         }
-        .loading-gif {
-            max-width: 100%;
-            max-height: 100vh;
-            display: block;
-        }
+        .loading-gif { max-width: 100%; display: block; }
     </style>
 </head>
 <body>
 
     <div id="loading-container">
         <img src="icons/loading.gif" class="loading-gif" alt="Carregando...">
+        <div id="install-message">
+            <p>Instale o App para acessar o conteúdo completo.</p>
+        </div>
     </div>
 
     <script>
         const targetUrl = "https://androidauthority.com";
 
-        function startProcess() {
-            // Mostra o GIF centralizado
-            document.getElementById('loading-container').style.display = 'block';
-            
-            // Inicia contagem de 10 segundos para redirecionamento
+        // Checa se o App está rodando como PWA instalado
+        const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+        if (isPWA) {
+            // Se estiver instalado, redireciona em 2 segundos (apenas para o usuário ver o splash)
             setTimeout(() => {
                 window.location.replace(targetUrl);
-            }, 10000);
+            }, 2000);
+        } else {
+            // Se NÃO estiver instalado, permanece na página para permitir a instalação
+            document.getElementById('install-message').style.display = 'block';
+            console.log("Aguardando instalação pelo usuário...");
         }
 
+        // Registro do Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('service-worker.js')
-                    .then(reg => {
-                        // Aguarda o Service Worker estar pronto (critério de instalação)
-                        return navigator.serviceWorker.ready;
-                    })
-                    .then(() => {
-                        // Inicia o GIF e o Timer
-                        startProcess();
-                    })
-                    .catch(err => {
-                        console.error('Erro no SW:', err);
-                        startProcess(); // Tenta carregar mesmo com erro
-                    });
+                navigator.serviceWorker.register('service-worker.js');
             });
-        } else {
-            startProcess();
         }
     </script>
 </body>
