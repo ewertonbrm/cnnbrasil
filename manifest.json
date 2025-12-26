@@ -1,11 +1,11 @@
 {
-  "name": "Android Authority",
-  "short_name": "Android Authority",
-  "description": "Acesso rápido ao Android Authority.",
+  "name": "CNN Brasil",
+  "short_name": "CNN Brasil",
+  "description": "Acesso ao site da CNN Brasil.",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#FFFFFF",
-  "theme_color": "#00D49F",
+  "theme_color": "#CC0000",
   "icons": [
     {
       "src": "icons/icon-192x192.png",
@@ -21,3 +21,4 @@
     }
   ]
 }
+
