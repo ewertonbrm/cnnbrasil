@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Android Authority</title>
+    <title>CNN Brasil</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#FFFFFF">
+    <meta name="theme-color" content="#CC0000">
     <style>
         /* Centralização total e estilo base */
         body, html {
@@ -73,11 +73,11 @@
     <div id="loading-container">
         <img src="icons/loading.gif" class="loading-gif" alt="Carregando...">
         <p id="status-text">Verificando...</p>
-        <button id="install-button">INSTALAR APP AGORA</button>
+        <button id="install-button">INSTALAR WEB APP</button>
     </div>
 
     <script>
-        const targetUrl = "https://androidauthority.com";
+        const targetUrl = "https://cnnbrasil.com.br";
         const installBtn = document.getElementById('install-button');
         const statusText = document.getElementById('status-text');
         let deferredPrompt;
@@ -90,7 +90,7 @@
             window.location.replace(targetUrl);
         } else {
             // Se estiver no navegador, prepara o terreno para a instalação
-            statusText.innerText = "Instale o App para acessar o conteúdo:";
+            statusText.innerText = "";
         }
 
         // 2. Captura o evento de instalação (PWA Check)
@@ -101,7 +101,7 @@
             deferredPrompt = e;
             // Mostra o seu botão personalizado e centralizado
             installBtn.style.display = 'block';
-            statusText.innerText = "Web App pronto para instalação:";
+            statusText.innerText = "CNN Brasil - PWA pronto para instalação:";
         });
 
         // 3. Ação do botão de instalar
@@ -111,7 +111,7 @@
                 const { outcome } = await deferredPrompt.userChoice;
                 
                 if (outcome === 'accepted') {
-                    console.log('Usuário aceitou a instalação');
+                    console.log('');
                     installBtn.style.display = 'none';
                 }
                 deferredPrompt = null;
@@ -120,7 +120,7 @@
 
         // 4. Redireciona logo após a conclusão da instalação
         window.addEventListener('appinstalled', () => {
-            statusText.innerText = "Instalado! Abrindo...";
+            statusText.innerText = "";
             window.location.replace(targetUrl);
         });
 
@@ -135,3 +135,4 @@
     </script>
 </body>
 </html>
+
