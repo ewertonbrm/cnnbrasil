@@ -1,4 +1,4 @@
-const CACHE_NAME = 'androidauthority-cache-v15';
+const CACHE_NAME = 'androidauthority-cache-v16'; // Versão incrementada
 const ASSETS = [
   'index.html',
   'manifest.json',
@@ -26,6 +26,7 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+  // Mantém a funcionalidade essencial para o Android detectar o PWA
   event.respondWith(
     caches.match(event.request).then(response => {
       return response || fetch(event.request);
