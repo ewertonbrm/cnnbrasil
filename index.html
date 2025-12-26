@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CNN Brasil</title>
+    <title>Android Authority</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#FFFFFF">
     <style>
-        /* Centralização total da página */
+        /* Centralização total e estilo base */
         body, html {
             margin: 0;
             padding: 0;
@@ -18,20 +18,21 @@
             align-items: center;
             background-color: #FFFFFF;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
         }
 
-        /* Container principal empilhado verticalmente */
+        /* Container principal */
         #loading-container {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
-            width: 90%; /* Margem lateral no mobile */
+            width: 90%;
         }
 
         .loading-gif {
-            max-width: 250px; /* Tamanho controlado do GIF */
+            max-width: 250px;
             height: auto;
             margin-bottom: 20px;
         }
@@ -39,13 +40,14 @@
         #status-text {
             color: #555;
             font-size: 16px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            min-height: 1.2em;
         }
 
-        /* Botão Ajustado: Cor #CC0000 e Centralizado */
+        /* Botão estilizado em Vermelho #CC0000 */
         #install-button {
-            display: none; /* Só aparece via JS */
-            padding: 15px 32px;
+            display: none; /* Só aparece via JavaScript */
+            padding: 16px 32px;
             background-color: #CC0000;
             color: white;
             border: none;
@@ -55,12 +57,13 @@
             text-transform: uppercase;
             cursor: pointer;
             box-shadow: 0 4px 12px rgba(204, 0, 0, 0.3);
-            transition: transform 0.2s, background-color 0.2s;
+            transition: transform 0.1s, background-color 0.2s;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* Efeito de clique para feedback visual no Android */
+        /* Feedback visual ao tocar/clicar */
         #install-button:active {
-            transform: scale(0.95);
+            transform: scale(0.96);
             background-color: #990000;
         }
     </style>
@@ -69,59 +72,66 @@
 
     <div id="loading-container">
         <img src="icons/loading.gif" class="loading-gif" alt="Carregando...">
-        <p id="status-text">Verificando sistema...</p>
-        <button id="install-button">INSTALAR WEBAPP</button>
+        <p id="status-text">Verificando...</p>
+        <button id="install-button">INSTALAR APP AGORA</button>
     </div>
 
     <script>
-        const targetUrl = "https://cnnbrasil.com.br";
+        const targetUrl = "https://androidauthority.com";
         const installBtn = document.getElementById('install-button');
         const statusText = document.getElementById('status-text');
         let deferredPrompt;
 
-        // Verifica o modo de exibição
+        // 1. Lógica de Redirecionamento Imediato
         const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
         if (isPWA) {
-            statusText.innerText = "Abrindo...";
-            setTimeout(() => {
-                window.location.replace(targetUrl);
-            }, 2000);
+            // Se já for o App instalado, pula direto para o site
+            window.location.replace(targetUrl);
         } else {
-            statusText.innerText = "CNN Brasil - PWA";
+            // Se estiver no navegador, prepara o terreno para a instalação
+            statusText.innerText = "Instale o App para acessar o conteúdo:";
         }
 
-        // Captura o evento de instalação
+        // 2. Captura o evento de instalação (PWA Check)
         window.addEventListener('beforeinstallprompt', (e) => {
+            // Impede o banner padrão do Chrome de aparecer sozinho
             e.preventDefault();
+            // Guarda o evento
             deferredPrompt = e;
-            installBtn.style.display = 'block'; // Mostra o botão centralizado
+            // Mostra o seu botão personalizado e centralizado
+            installBtn.style.display = 'block';
+            statusText.innerText = "Web App pronto para instalação:";
         });
 
+        // 3. Ação do botão de instalar
         installBtn.addEventListener('click', async () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
+                
                 if (outcome === 'accepted') {
+                    console.log('Usuário aceitou a instalação');
                     installBtn.style.display = 'none';
                 }
                 deferredPrompt = null;
             }
         });
 
+        // 4. Redireciona logo após a conclusão da instalação
         window.addEventListener('appinstalled', () => {
-            statusText.innerText = "Sucesso! Redirecionando...";
-            setTimeout(() => {
-                window.location.replace(targetUrl);
-            }, 1000);
+            statusText.innerText = "Instalado! Abrindo...";
+            window.location.replace(targetUrl);
         });
 
+        // 5. Registro do Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('service-worker.js');
+                navigator.serviceWorker.register('service-worker.js')
+                .then(reg => console.log('SW ativo:', reg.scope))
+                .catch(err => console.log('Erro SW:', err));
             });
         }
     </script>
 </body>
 </html>
-
