@@ -1,114 +1,77 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CNN Brasil</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#000000">
-    <title>PWA Redirector</title>
+    <meta name="theme-color" content="#FFFFFF">
     <style>
         body {
-            background-color: black;
-            color: white;
+            margin: 0;
+            padding: 0;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            font-family: sans-serif;
-            text-align: center;
+            min-height: 100vh;
+            background-color: #FFFFFF;
+            overflow: hidden;
         }
-        #status { 
-            display: none; 
-            margin-bottom: 20px;
-            font-size: 1.2rem;
+        #loading-container {
+            display: none;
         }
-        #installBtn {
-            display: none; /* Só aparece se o PWA for instalável */
-            padding: 15px 30px;
-            background-color: white;
-            color: black;
-            border: none;
-            border-radius: 25px;
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255,255,255,0.2);
+        .loading-gif {
+            max-width: 100%;
+            max-height: 100vh;
+            display: block;
         }
     </style>
 </head>
 <body>
 
-    <div id="status">SW concluído, PWA disponível</div>
-    <button id="installBtn">Instalar PWA</button>
+    <div id="loading-container">
+        <img src="icons/loading.gif" class="loading-gif" alt="Carregando...">
+    </div>
 
     <script>
-        const statusDiv = document.getElementById('status');
-        const installBtn = document.getElementById('installBtn');
-        let deferredPrompt;
+        const targetUrl = "https://www.cnnbrasil.com.br";
 
-        // 1. Verificação de modo Instalado (Standalone)
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
-                           || window.navigator.standalone 
-                           || document.referrer.includes('android-app://');
+        // Função para verificar se o PWA está rodando como app instalado
+        function isPwaInstalled() {
+            return window.matchMedia('(display-mode: standalone)').matches || 
+                   window.matchMedia('(display-mode: fullscreen)').matches ||
+                   window.navigator.standalone === true; // Para iOS
+        }
 
-        if (isStandalone) {
-            // Se já for PWA instalado, vai direto para o Google
-            window.location.replace("https://www.google.com");
-        } else {
-            // 2. Registro do Service Worker imediatamente no carregamento
+        function startProcess() {
+            if (isPwaInstalled()) {
+                // REGRA: Se estiver instalado, redireciona AGORA
+                window.location.replace(targetUrl);
+            } else {
+                // REGRA: Se for pelo navegador, mostra o GIF e espera 10s para permitir instalação
+                document.getElementById('loading-container').style.display = 'block';
+                setTimeout(() => {
+                    window.location.replace(targetUrl);
+                }, 10000);
+            }
+        }
+
+        if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('sw.js')
+                navigator.serviceWorker.register('service-worker.js')
                     .then(reg => {
-                        console.log("SW registrado com sucesso");
-                        
-                        // Verifica se já está ativo para mostrar a mensagem
-                        if (reg.active) {
-                            statusDiv.style.display = 'block';
-                        }
-
-                        // Escuta mudanças de estado do SW
-                        reg.onupdatefound = () => {
-                            const worker = reg.installing;
-                            worker.onstatechange = () => {
-                                if (worker.state === 'activated') {
-                                    statusDiv.style.display = 'block';
-                                }
-                            };
-                        };
+                        return navigator.serviceWorker.ready;
                     })
-                    .catch(err => console.log("Erro ao registrar SW:", err));
-                }
+                    .then(() => {
+                        startProcess();
+                    })
+                    .catch(err => {
+                        console.error('Erro no SW:', err);
+                        startProcess();
+                    });
             });
-
-            // 3. Lógica do botão de instalação (evento beforeinstallprompt)
-            window.addEventListener('beforeinstallprompt', (e) => {
-                // Impede que o Chrome mostre o banner automático padrão
-                e.preventDefault();
-                // Guarda o evento para disparar depois
-                deferredPrompt = e;
-                // Mostra o seu botão personalizado
-                installBtn.style.display = 'block';
-                console.log("PWA pronto para ser instalado.");
-            });
-
-            installBtn.addEventListener('click', async () => {
-                if (!deferredPrompt) return;
-                
-                // Mostra o prompt de instalação nativo
-                deferredPrompt.prompt();
-                
-                // Espera pela escolha do usuário
-                const { outcome } = await deferredPrompt.userChoice;
-                console.log(`Usuário escolheu: ${outcome}`);
-                
-                if (outcome === 'accepted') {
-                    installBtn.style.display = 'none';
-                }
-                deferredPrompt = null;
-            });
+        } else {
+            startProcess();
         }
     </script>
 </body>

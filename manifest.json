@@ -1,10 +1,11 @@
 {
-  "name": "PWA Redirector",
-  "short_name": "PWA",
+  "name": "CNN Brasil",
+  "short_name": "CNN Brasil",
+  "description": "Acesso rápido à CNN Brasil.",
   "start_url": "index.html",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#FFFFFF",
+  "theme_color": "#FFFFFF",
   "icons": [
     {
       "src": "icons/icon-192x192.png",
