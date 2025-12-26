@@ -1,4 +1,4 @@
-const CACHE_NAME = 'androidauthority-cache-v19'; // Versão incrementada
+const CACHE_NAME = 'cnnbrasil-cache-v20'; // Versão incrementada
 const ASSETS = [
   'index.html',
   'manifest.json',
@@ -33,6 +33,7 @@ self.addEventListener('fetch', event => {
     })
   );
 });
+
 
 
 
