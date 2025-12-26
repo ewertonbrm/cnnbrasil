@@ -1,8 +1,34 @@
+const CACHE_NAME = 'cnnbrasil-teste-v11';
+const ASSETS = [
+  'index.html',
+  'manifest.json',
+  'icons/loading.gif',
+  'icons/icon-192x192.png',
+  'icons/icon-512x512.png'
+];
 
-self.addEventListener('install', (e) => {
-    e.waitUntil(caches.open('v1').then(cache => cache.addAll(['index.html', 'manifest.json'])));
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll(ASSETS);
+    })
+  );
+  self.skipWaiting();
 });
 
-self.addEventListener('fetch', (e) => {
-    e.respondWith(caches.match(e.request).then(res => res || fetch(e.request)));
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys => Promise.all(
+      keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+    ))
+  );
+  self.clients.claim();
+});
+
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request);
+    })
+  );
 });
