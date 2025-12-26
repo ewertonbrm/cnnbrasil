@@ -1,4 +1,4 @@
-const CACHE_NAME = 'androidauthority-cache-v16'; // Versão incrementada
+const CACHE_NAME = 'androidauthority-cache-v17'; // Versão incrementada
 const ASSETS = [
   'index.html',
   'manifest.json',
@@ -33,3 +33,4 @@ self.addEventListener('fetch', event => {
     })
   );
 });
+
